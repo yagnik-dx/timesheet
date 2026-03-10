@@ -1,60 +1,36 @@
 # timesheet
 
-Show git commit activity grouped by repository. Output is printed and copied to the clipboard.
+**timesheet** is a lightweight Go CLI that scans Git repositories and lists commit messages grouped by repository—ideal for daily standup reports.
+
+---
+
+## Features
+
+- Scan directories recursively to discover Git repos
+- Auto-detect Git user email (local → global → first repo)
+- Show commit messages grouped by repository
+- Default: **today's commits**
+- Filter by **date**, **author**, and **path**
+- Optional copy to clipboard (`--copy`)
+- Compact output with `--short`
+
+---
 
 ## Installation
 
-### Windows
-
-Pre-built `timesheet.exe` is provided. Use one of these:
-
-**Option 1 — CMD or PowerShell (recommended)**  
-Download and run the installer (it will download the exe and add it to your PATH):
-
-```cmd
-curl -fsSL -o install.bat https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.bat && install.bat
-```
-
-Or in PowerShell:
-
-```powershell
-Invoke-WebRequest -Uri https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.bat -OutFile install.bat -UseBasicParsing; .\install.bat
-```
-
-**Option 2 — Git Bash or WSL**
+Run:
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.sh | bash
 ```
 
-**Option 3 — Manual**  
-Download [timesheet.exe](https://github.com/yagnik-dx/timesheet/blob/main/timesheet.exe) and put it in a folder on your PATH (e.g. `%USERPROFILE%\bin`).
-
-After installing, close and reopen your terminal, then run `timesheet --help`.
-
-### Linux & macOS (build from source)
-
-Pre-built binaries are not provided. You need Go installed:
+Then:
 
 ```bash
-git clone https://github.com/yagnik-dx/timesheet.git
-cd timesheet
-go build -o timesheet .
-sudo mv timesheet /usr/local/bin/
+timesheet --help
 ```
 
-Or install via Go:
-
-```bash
-git clone https://github.com/yagnik-dx/timesheet.git && cd timesheet && go install .
-```
-
-(Make sure `$GOPATH/bin` or `$GOBIN` is in your PATH.)
-
-## Requirements
-
-- **Windows:** [Git](https://git-scm.com/) (must be on your PATH for the tool to work).
-- **Linux & macOS:** [Go](https://go.dev/dl/) 1.x and [Git](https://git-scm.com/).
+---
 
 ## Usage
 
@@ -67,19 +43,45 @@ timesheet [flags]
 | `--date YYYY-MM-DD` | Show commits for a specific date (default: today) |
 | `--author EMAIL` | Override detected git author |
 | `--path DIRECTORY` | Scan repositories in this directory (default: current directory) |
+| `--copy` | Copy output to clipboard |
 | `--short` | Compact output format |
 | `--help` | Show command help |
+
+---
 
 ## Examples
 
 ```bash
 timesheet
 timesheet --date 2026-03-10
+timesheet --author dev@company.com
 timesheet --path C:\Projects
+timesheet --copy
 timesheet --short
 ```
 
-## Updating
+---
 
-- **Windows:** Run the install script again, or replace `timesheet.exe` in your install directory.
-- **Linux & macOS:** Pull the latest changes and rebuild (`go build` or `go install`).
+## Build manually
+
+If you have Go installed and want to build locally:
+
+```bash
+go build -o timesheet .
+./timesheet --help
+```
+
+To build for multiple platforms:
+
+```bash
+GOOS=windows GOARCH=amd64 go build -o bin/timesheet.exe .
+GOOS=linux   GOARCH=amd64 go build -o bin/timesheet-linux .
+GOOS=darwin  GOARCH=amd64 go build -o bin/timesheet-macos .
+GOOS=darwin  GOARCH=arm64 go build -o bin/timesheet-macos-arm64 .
+```
+
+---
+
+## Requirements
+
+- **Git** on PATH. For `--copy`: Windows `clip`, macOS `pbcopy`, or Linux `xclip`/`xsel`.

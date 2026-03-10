@@ -8,31 +8,35 @@ BINARY="timesheet"
 OS=$(uname | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m)
 
-# Pre-built binary only for Windows; Linux/macOS must build from source
-if [[ "$OS" == *"mingw"* || "$OS" == *"cygwin"* || "$OS" == *"msys"* ]]; then
-  FILE="timesheet.exe"
+# Detect the correct binary (mirrors img-opt layout)
+if [[ "$OS" == "darwin" && "$ARCH" == "arm64" ]]; then
+  FILE="$BINARY-macos-arm64"
+elif [[ "$OS" == "darwin" ]]; then
+  FILE="$BINARY-macos"
+elif [[ "$OS" == "linux" ]]; then
+  FILE="$BINARY-linux"
+elif [[ "$OS" == *"mingw"* || "$OS" == *"cygwin"* || "$OS" == *"msys"* ]]; then
+  FILE="$BINARY.exe"
   INSTALL_DIR="/usr/bin"
-  RAW_URL="https://raw.githubusercontent.com/$REPO/main/$FILE"
-
-  echo "⬇️  Downloading $BINARY from $RAW_URL ..."
-  TMP_FILE=$(mktemp)
-  curl -fsSL "$RAW_URL" -o "$TMP_FILE"
-
-  echo "🚀 Installing to $INSTALL_DIR/$BINARY ..."
-  mv "$TMP_FILE" "$INSTALL_DIR/$BINARY"
-
-  echo "✅ $BINARY installed successfully!"
-  echo "Run '$BINARY --help' to get started."
 else
-  echo "❌ Pre-built binaries are not provided for $OS/$ARCH."
-  echo ""
-  echo "Build from source:"
-  echo "  git clone https://github.com/$REPO.git"
-  echo "  cd timesheet"
-  echo "  go build -o timesheet ."
-  echo "  sudo mv timesheet $INSTALL_DIR/"
-  echo ""
-  echo "Or install via Go:"
-  echo "  git clone https://github.com/$REPO.git && cd timesheet && go install ."
+  echo "❌ Unsupported OS/architecture: $OS/$ARCH"
   exit 1
 fi
+
+RAW_URL="https://raw.githubusercontent.com/$REPO/main/bin/$FILE"
+
+echo "⬇️  Downloading $BINARY from $RAW_URL ..."
+TMP_FILE=$(mktemp)
+
+curl -fsSL "$RAW_URL" -o "$TMP_FILE"
+
+echo "🚀 Installing to $INSTALL_DIR/$BINARY ..."
+if [[ "$OS" == *"mingw"* || "$OS" == *"cygwin"* || "$OS" == *"msys"* ]]; then
+    mv "$TMP_FILE" "$INSTALL_DIR/$BINARY"
+else
+    sudo mv "$TMP_FILE" "$INSTALL_DIR/$BINARY"
+    sudo chmod +x "$INSTALL_DIR/$BINARY"
+fi
+
+echo "✅ $BINARY installed successfully!"
+echo "Run '$BINARY --help' to get started."

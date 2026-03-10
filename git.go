@@ -5,14 +5,40 @@ import (
 	"strings"
 )
 
-// GetDefaultAuthor gets the default git author email.
-func GetDefaultAuthor() (string, error) {
-	cmd := exec.Command("git", "config", "user.email")
+// getAuthorFromGit runs `git config user.email` in the given directory (or global if dir is empty).
+func getAuthorFromGit(dir string) (string, error) {
+	args := []string{"config", "user.email"}
+	if dir == "" {
+		args = []string{"config", "--global", "user.email"}
+	}
+	cmd := exec.Command("git", args...)
+	if dir != "" {
+		cmd.Dir = dir
+	}
 	out, err := cmd.Output()
 	if err != nil {
 		return "", err
 	}
 	return strings.TrimSpace(string(out)), nil
+}
+
+// GetDefaultAuthor gets the git author email: tries current dir, then global config, then from first repo if provided.
+func GetDefaultAuthor(firstRepoPath string) (string, error) {
+	// 1) Try current working directory (local config)
+	if author, err := getAuthorFromGit("."); err == nil && author != "" {
+		return author, nil
+	}
+	// 2) Try global config
+	if author, err := getAuthorFromGit(""); err == nil && author != "" {
+		return author, nil
+	}
+	// 3) Try from first discovered repo
+	if firstRepoPath != "" {
+		if author, err := getAuthorFromGit(firstRepoPath); err == nil && author != "" {
+			return author, nil
+		}
+	}
+	return "", nil
 }
 
 // GetCommits gets the commits for a specific author and date in a given repository.

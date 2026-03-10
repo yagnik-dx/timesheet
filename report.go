@@ -8,18 +8,25 @@ import (
 	"time"
 )
 
+func repoDisplayName(repoPath string) string {
+	abs, err := filepath.Abs(repoPath)
+	if err != nil {
+		return filepath.Base(repoPath)
+	}
+	return filepath.Base(abs)
+}
+
 type RepoCommits struct {
 	Name    string
 	Commits []string
 }
 
-// formatDisplayDate converts YYYY-MM-DD to "06 March 2026" format.
+// formatDisplayDate returns the date in YYYY-MM-DD for header (spec format).
 func formatDisplayDate(date string) string {
-	t, err := time.Parse("2006-01-02", date)
-	if err != nil {
+	if _, err := time.Parse("2006-01-02", date); err != nil {
 		return date
 	}
-	return t.Format("02 January 2006")
+	return date
 }
 
 // GenerateReport formats the commit messages grouped by repository.
@@ -29,7 +36,7 @@ func GenerateReport(date, author string, repos []string, short bool) string {
 		commits, _ := GetCommits(repoPath, date, author)
 		if len(commits) > 0 {
 			repoCommitsList = append(repoCommitsList, RepoCommits{
-				Name:    filepath.Base(repoPath),
+				Name:    repoDisplayName(repoPath),
 				Commits: commits,
 			})
 		}
@@ -56,9 +63,7 @@ func GenerateReport(date, author string, repos []string, short bool) string {
 			}
 		}
 	} else {
-		sb.WriteString("------------------\n")
-		sb.WriteString(formatDisplayDate(date) + "\n")
-		sb.WriteString("------------------\n")
+		sb.WriteString(fmt.Sprintf("Date: %s\n", formatDisplayDate(date)))
 		sb.WriteString(fmt.Sprintf("Author: %s\n\n", author))
 
 		for i, rc := range repoCommitsList {
