@@ -1,28 +1,37 @@
 @echo off
 setlocal
 
-set APP_NAME=timesheet
-set BIN_DIR=%USERPROFILE%\bin
+set "APP_NAME=timesheet"
+set "BIN_DIR=%USERPROFILE%\bin"
+set "REPO_URL=https://raw.githubusercontent.com/yagnik-dx/timesheet/main/timesheet.exe"
+set "EXE_PATH=%BIN_DIR%\%APP_NAME%.exe"
 
-if not exist "%APP_NAME%.exe" (
-  echo [x] %APP_NAME%.exe not found! 
-  echo Please make sure you have the pre-built %APP_NAME%.exe in the same folder as this script.
+echo Downloading %APP_NAME% from GitHub...
+if not exist "%BIN_DIR%" mkdir "%BIN_DIR%"
+
+:: Try curl (Windows 10+), then PowerShell
+where curl >nul 2>nul
+if %ERRORLEVEL% EQU 0 (
+  curl -fsSL "%REPO_URL%" -o "%EXE_PATH%"
+) else (
+  powershell -NoProfile -Command "Invoke-WebRequest -Uri '%REPO_URL%' -OutFile '%EXE_PATH%' -UseBasicParsing"
+)
+
+if not exist "%EXE_PATH%" (
+  echo Failed to download. Get timesheet.exe from https://github.com/yagnik-dx/timesheet
   exit /b 1
 )
 
-echo [*] Creating bin directory at %BIN_DIR%...
-if not exist "%BIN_DIR%" mkdir "%BIN_DIR%"
-
-echo [*] Installing %APP_NAME% to %BIN_DIR%...
-copy /Y %APP_NAME%.exe "%BIN_DIR%\%APP_NAME%.exe"
-
-echo [*] Adding %BIN_DIR% to PATH (user scope)...
-setx PATH "%PATH%;%BIN_DIR%" >nul
+:: Add BIN_DIR to user PATH if not already there
+echo %PATH% | findstr /I /C:"%BIN_DIR%" >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+  echo Adding %BIN_DIR% to your user PATH...
+  setx PATH "%PATH%;%BIN_DIR%" >nul
+)
 
 echo.
-echo [SUCCESS] Installation complete!
-echo [+] Close and reopen CMD/PowerShell
-echo [+] Run: %APP_NAME%
+echo [SUCCESS] %APP_NAME% installed to %BIN_DIR%
+echo Close and reopen CMD/PowerShell, then run: %APP_NAME%
 echo.
 
 endlocal

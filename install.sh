@@ -12,7 +12,7 @@ ARCH=$(uname -m)
 if [[ "$OS" == *"mingw"* || "$OS" == *"cygwin"* || "$OS" == *"msys"* ]]; then
   FILE="timesheet.exe"
   INSTALL_DIR="/usr/bin"
-  RAW_URL="https://raw.githubusercontent.com/$REPO/main/bin/$FILE"
+  RAW_URL="https://raw.githubusercontent.com/$REPO/main/$FILE"
 
   echo "⬇️  Downloading $BINARY from $RAW_URL ..."
   TMP_FILE=$(mktemp)

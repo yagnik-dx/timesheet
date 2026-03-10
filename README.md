@@ -4,21 +4,33 @@ Show git commit activity grouped by repository. Output is printed and copied to 
 
 ## Installation
 
-### Windows (one-line install)
+### Windows
 
-Pre-built `timesheet.exe` is provided. In Git Bash or WSL:
+Pre-built `timesheet.exe` is provided. Use one of these:
+
+**Option 1 — CMD or PowerShell (recommended)**  
+Download and run the installer (it will download the exe and add it to your PATH):
+
+```cmd
+curl -fsSL -o install.bat https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.bat && install.bat
+```
+
+Or in PowerShell:
+
+```powershell
+Invoke-WebRequest -Uri https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.bat -OutFile install.bat -UseBasicParsing; .\install.bat
+```
+
+**Option 2 — Git Bash or WSL**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.sh | bash
 ```
 
-Then run:
+**Option 3 — Manual**  
+Download [timesheet.exe](https://github.com/yagnik-dx/timesheet/blob/main/timesheet.exe) and put it in a folder on your PATH (e.g. `%USERPROFILE%\bin`).
 
-```bash
-timesheet --help
-```
-
-**Manual:** Download [timesheet.exe](https://github.com/yagnik-dx/timesheet/blob/main/bin/timesheet.exe) from the `bin/` folder and place it in a directory on your PATH.
+After installing, close and reopen your terminal, then run `timesheet --help`.
 
 ### Linux & macOS (build from source)
 
