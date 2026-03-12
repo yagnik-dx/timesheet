@@ -12,7 +12,7 @@ func main() {
 	datePtr := flag.String("date", time.Now().Format("2006-01-02"), "Show commits for specific date")
 	authorPtr := flag.String("author", "", "Override detected git author")
 	pathPtr := flag.String("path", ".", "Scan repositories in directory")
-	copyPtr := flag.Bool("copy", false, "Copy output to clipboard")
+	copyPtr := flag.Bool("copy", true, "Copy output to clipboard")
 	shortPtr := flag.Bool("short", false, "Compact output format")
 	helpPtr := flag.Bool("help", false, "Show command help")
 

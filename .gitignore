@@ -1,0 +1,6 @@
+# Root build output (dev only)
+timesheet.exe
+
+# Keep bin/ tracked (pre-built releases)
+!bin/
+!bin/**

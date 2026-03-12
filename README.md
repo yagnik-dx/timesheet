@@ -1,40 +1,45 @@
 # timesheet
 
-**timesheet** is a lightweight Go CLI that scans Git repositories and lists commit messages grouped by repository—ideal for daily standup reports.
+**timesheet** is a lightweight Go CLI that scans Git repositories and lists commit messages grouped by repository — ideal for daily standup reports.
+
+Output is automatically copied to your clipboard on every run.
 
 ---
 
-## Features
+## Requirements
 
-- Scan directories recursively to discover Git repos
-- Auto-detect Git user email (local → global → first repo)
-- Show commit messages grouped by repository
-- Default: **today's commits**
-- Filter by **date**, **author**, and **path**
-- Optional copy to clipboard (`--copy`)
-- Compact output with `--short`
+- Git on PATH
+- Windows (pre-built binary included)
 
 ---
 
-## Installation
+## Setup
 
-Run:
+No Go required — a pre-built Windows binary is included.
 
-```bash
-curl -sSL https://raw.githubusercontent.com/yagnik-dx/timesheet/main/install.sh | bash
+**CMD**
+```cmd
+git clone https://github.com/yagnik-dx/timesheet.git
+cd timesheet
+install.bat
 ```
 
-Then:
-
-```bash
-timesheet --help
+**PowerShell**
+```powershell
+git clone https://github.com/yagnik-dx/timesheet.git
+cd timesheet
+.\install.bat
 ```
+
+This copies `bin\timesheet.exe` to `%USERPROFILE%\bin` and adds it to your PATH.
+
+> Open a new terminal after installation and run `timesheet` to verify.
 
 ---
 
 ## Usage
 
-```bash
+```
 timesheet [flags]
 ```
 
@@ -43,7 +48,7 @@ timesheet [flags]
 | `--date YYYY-MM-DD` | Show commits for a specific date (default: today) |
 | `--author EMAIL` | Override detected git author |
 | `--path DIRECTORY` | Scan repositories in this directory (default: current directory) |
-| `--copy` | Copy output to clipboard |
+| `--copy=false` | Disable clipboard copy |
 | `--short` | Compact output format |
 | `--help` | Show command help |
 
@@ -56,32 +61,30 @@ timesheet
 timesheet --date 2026-03-10
 timesheet --author dev@company.com
 timesheet --path C:\Projects
-timesheet --copy
 timesheet --short
+timesheet --copy=false
 ```
 
 ---
 
-## Build manually
+## Output
 
-If you have Go installed and want to build locally:
+Default:
+```
+Date: 2026-03-12
+Author: you@example.com
 
-```bash
-go build -o timesheet .
-./timesheet --help
+auth-service
+- fix login validation
+- add rate limiting
+
+billing-service
+- optimize invoice query
 ```
 
-To build for multiple platforms:
-
-```bash
-GOOS=windows GOARCH=amd64 go build -o bin/timesheet.exe .
-GOOS=linux   GOARCH=amd64 go build -o bin/timesheet-linux .
-GOOS=darwin  GOARCH=amd64 go build -o bin/timesheet-macos .
-GOOS=darwin  GOARCH=arm64 go build -o bin/timesheet-macos-arm64 .
+With `--short`:
 ```
-
----
-
-## Requirements
-
-- **Git** on PATH. For `--copy`: Windows `clip`, macOS `pbcopy`, or Linux `xclip`/`xsel`.
+auth-service: fix login validation
+auth-service: add rate limiting
+billing-service: optimize invoice query
+```
