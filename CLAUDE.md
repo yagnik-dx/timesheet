@@ -17,20 +17,28 @@ GOOS=darwin  GOARCH=amd64 go build -o bin/timesheet-macos .
 GOOS=darwin  GOARCH=arm64 go build -o bin/timesheet-macos-arm64 .
 ```
 
-No external dependencies — stdlib only (`go.mod` declares `module timesheet`).
+## Lint & Format
+
+```bash
+go vet ./...
+gofmt -w .
+```
+
+No tests exist in this codebase.
 
 ## Architecture
 
-Single `main` package with no third-party imports. Each file has a clear responsibility:
+Single `main` package, no third-party imports. Each file has a clear responsibility:
 
 - **main.go** — CLI flag parsing, orchestration: scans repos → detects author → generates report → optionally copies to clipboard
-- **scanner.go** — `FindRepositories(root)`: walks directory tree, finds `.git` dirs, skips repo internals
-- **git.go** — `GetDefaultAuthor(firstRepo)`: tries local → global → first-repo git config; `GetCommits(repo, date, author)`: runs `git log` with `--since`/`--until`/`--author` filtering
-- **report.go** — `GenerateReport(date, author, repos, short)`: calls `GetCommits` per repo, sorts results alphabetically, formats as full (Date/Author header + bullet lists) or compact (`repo: commit` lines)
-- **clipboard.go** — `CopyToClipboard(text)`: dispatches to `clip` (Windows), `pbcopy` (macOS), or `xclip`/`xsel` (Linux)
+- **scanner.go** — `FindRepositories(root)`: walks directory tree, finds `.git` dirs; calls `filepath.SkipDir` after finding one so nested repos are not traversed
+- **git.go** — `GetDefaultAuthor(firstRepo)`: tries local → global → first-repo git config; `GetCommits(repo, date, author)`: runs `git log --pretty=format:%s` filtered by `--since`/`--until`/`--author`; returns `nil, nil` on error (treated as no commits)
+- **report.go** — `GenerateReport(date, author, repos, short)`: calls `GetCommits` per repo, sorts alphabetically by `filepath.Base` of the repo path, formats as full (Date/Author header + bullet lists) or compact (`repo: commit` lines)
+- **clipboard.go** — `CopyToClipboard(text)`: dispatches to `clip` (Windows), `pbcopy` (macOS), or `xclip`/`xsel` (Linux); Linux requires one of these to be installed
 
-## Data Flow
+## Key Behavioral Notes
 
-`FindRepositories` → `GetDefaultAuthor` → `GenerateReport` (calls `GetCommits` per repo) → optional `CopyToClipboard`
-
-All git operations shell out to the `git` binary; there is no libgit2 or go-git dependency.
+- `--copy` defaults to `true`; disable with `--copy=false`
+- Author is matched via `--author` substring (passed directly to `git log --author=`), so partial email matches work
+- `WalkDir` errors are silently ignored; inaccessible directories are skipped without failing
+- The Windows installer (`install.bat`) copies `bin\timesheet.exe` to `%USERPROFILE%\bin` and patches the user PATH via PowerShell
